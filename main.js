@@ -1,8 +1,6 @@
 const SMOOTH = 0.02; // 動きのなめらかさ（小さいほどなめらか）
 
 let circles = [];
-let px = 0;
-let py = 0;
 
 class Circle {
   constructor(name, x, y, color, size, activity, coordinationLevel) {
@@ -11,9 +9,11 @@ class Circle {
     this.y = y;
     this.color = color;
     this.size = size;
-    this.activity = activity;
+    this.lowerActivity = -activity * 0.87;
+    this.upperActivity = activity;
     this.coordinationLevel = coordinationLevel;
     this.path = [{ x: x, y: y }];
+    this.seed = floor(random(100000));
   }
 
   // 現在地に円を描写する
@@ -26,30 +26,34 @@ class Circle {
 
   // 円の位置を更新する
   update(id) {
-    const x = px + id / 100;
-    const y = py + id / 100;
+    const step = this.getStep(id);
 
-    noiseSeed(id);
-    this.x += map(noise(x, 0), 0, 1, -this.activity * 0.87, this.activity);
-    this.y += map(noise(0, y), 0, 1, -this.activity * 0.87, this.activity);
+    noiseSeed(this.seed);
+    this.x += map(noise(step, 0), 0, 1, this.lowerActivity, this.upperActivity);
+    this.y += map(noise(0, step), 0, 1, this.lowerActivity, this.upperActivity);
+  }
+
+  getStep(id) {
+    const noiseCycleShift = id / 100;
+    return frameCount * SMOOTH + noiseCycleShift;
   }
 
   // ウィンドウからはみ出ないように位置を調整する
   check() {
     if (this.x + this.size >= width) {
-      this.x -= this.activity;
+      this.x -= this.upperActivity;
     }
 
     if (this.x - this.size <= 0) {
-      this.x += this.activity;
+      this.x += this.upperActivity;
     }
 
     if (this.y + this.size >= height) {
-      this.y -= this.activity;
+      this.y -= this.upperActivity;
     }
 
     if (this.y - this.size <= 0) {
-      this.y += this.activity;
+      this.y += this.upperActivity;
     }
   }
 }
@@ -78,6 +82,4 @@ function draw() {
     circles[i].update(i);
     circles[i].check();
   }
-  px += SMOOTH;
-  py += SMOOTH;
 }
