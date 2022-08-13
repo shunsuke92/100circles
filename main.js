@@ -1,4 +1,5 @@
 const SMOOTH = 0.02; // 動きのなめらかさ（小さいほどなめらか）
+const LINE_WEIGHT = 3;
 
 let circles = [];
 
@@ -19,7 +20,7 @@ class Circle {
   // 現在地に円を描写する
   drawCircle() {
     stroke(this.color);
-    strokeWeight(3);
+    strokeWeight(LINE_WEIGHT);
     noFill();
     circle(this.x, this.y, this.size * 2);
   }
@@ -40,20 +41,25 @@ class Circle {
 
   // ウィンドウからはみ出ないように位置を調整する
   check() {
-    if (this.x + this.size >= width) {
-      this.x -= this.upperActivity;
+    const lineWeight = round(LINE_WEIGHT / 2);
+    // 右端に衝突
+    if (this.x + this.size + lineWeight >= width) {
+      this.x = width - this.size - lineWeight;
     }
 
-    if (this.x - this.size <= 0) {
-      this.x += this.upperActivity;
+    // 左端に衝突
+    if (this.x - this.size - lineWeight <= 0) {
+      this.x = this.size + lineWeight;
     }
 
-    if (this.y + this.size >= height) {
-      this.y -= this.upperActivity;
+    // 下端に衝突
+    if (this.y + this.size + lineWeight >= height) {
+      this.y = height - this.size - lineWeight;
     }
 
-    if (this.y - this.size <= 0) {
-      this.y += this.upperActivity;
+    // 上端に衝突
+    if (this.y - this.size - lineWeight <= 0) {
+      this.y = this.size + lineWeight;
     }
   }
 }
